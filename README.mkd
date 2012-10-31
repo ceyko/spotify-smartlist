@@ -1,0 +1,3 @@
+# Smartlist
+
+This is a Spotify App that plays songs from a playlist in order proportional to their popularity.

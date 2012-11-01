@@ -15,53 +15,12 @@
     </style>
     <script src="sp://smartlist/js/rainbow-custom.min.js"></script>
     <script src="sp://smartlist/js/jquery.min.js"></script>
+    <script src="sp://smartlist/site.js"></script>
   </head>
   <body>
     <div id="wrapper">
 
       <div id="index" class="section">
-
-        <script type="text/javascript">
-          var sp = getSpotifyApi(1);
-          var models = sp.require('sp://import/scripts/api/models');
-          var views = sp.require('sp://import/scripts/api/views');
-          var player = models.player;
-
-          window.onload = function() {
-            var drop_box = document.querySelector('#drop_box');
-
-            drop_box.addEventListener('dragstart', function(e){
-                e.dataTransfer.setData('text/html', this.innerHTML);
-                e.dataTransfer.effectAllowed = 'copy';
-                }, false);
-
-            drop_box.addEventListener('dragenter', function(e){
-                if (e.preventDefault) e.preventDefault();
-                e.dataTransfer.dropEffect = 'copy';
-                this.classList.add('over');
-                }, false);
-
-            drop_box.addEventListener('dragover', function(e){
-                if (e.preventDefault) e.preventDefault();
-                e.dataTransfer.dropEffect = 'copy';
-                return false;
-                }, false);
-
-            drop_box.addEventListener('drop', function(e){
-                if (e.preventDefault) e.preventDefault();
-                var drop = models.Playlist.fromURI(e.dataTransfer.getData('text'),
-                  function(playlist) {
-                    var list = new views.List(playlist);
-                    document.querySelector("#playlist_html").appendChild(list.node);
-                  });
-                console.log(drop);
-                this.classList.remove('over');
-                var success_message = document.createElement('p');
-                success_message.innerHTML = 'Playlist successfully dropped: ' + drop.uri;
-                this.appendChild(success_message);
-                }, false);
-          };
-        </script>
 
         <style>
           #drop_box {border:4px dashed #333;width:100%;height:200px;padding:10px;}

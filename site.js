@@ -29,7 +29,15 @@ window.onload = function() {
     if (e.preventDefault) e.preventDefault();
     var drop = models.Playlist.fromURI(e.dataTransfer.getData('text'),
       function(playlist) {
-        var list = new views.List(shuffle(playlist), trackFields);
+        // create shuffled playlist
+        var shuffled = shuffle(playlist);
+        // add player view
+        var player = new views.Player();
+        player.track = null;
+        player.context = shuffled;
+        document.querySelector("#player_html").appendChild(player.node);
+        // add playlist view
+        var list = new views.List(shuffled, trackFields);
         document.querySelector("#playlist_html").appendChild(list.node);
       });
     this.classList.remove('over');

@@ -29,7 +29,7 @@ window.onload = function() {
     if (e.preventDefault) e.preventDefault();
     var drop = models.Playlist.fromURI(e.dataTransfer.getData('text'),
       function(playlist) {
-        var list = new views.List(shuffle(playlist));
+        var list = new views.List(shuffle(playlist), trackFields);
         document.querySelector("#playlist_html").appendChild(list.node);
       });
     this.classList.remove('over');
@@ -49,3 +49,11 @@ function shuffle(playlist) {
     .forEach(function(x){ shuffled.add(x); });
   return shuffled;
 }
+
+function trackFields(track) {
+  var fields = views.Track.FIELD.STAR     | views.Track.FIELD.SHARE
+             | views.Track.FIELD.NAME     | views.Track.FIELD.ARTIST
+             | views.Track.FIELD.DURATION | views.Track.FIELD.ALBUM
+             | views.Track.FIELD.POPULARITY;
+  return new views.Track(track, fields);
+};

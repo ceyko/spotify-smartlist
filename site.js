@@ -100,7 +100,8 @@ Array.prototype.tap = function(f) { this.forEach(f); return this; }
  */
 Array.prototype.bsearch = function(value, opt_comp) {
 
-  opt_comp = opt_comp || default_comparator;
+  // Use default comparator if none specified
+  opt_comp = opt_comp || compare;
 
   var bsearch = function(value, low, high) {
     // Simple (low+high)/2 version will work for all arrays with less than 2^53
@@ -129,15 +130,4 @@ Array.prototype.bsearch = function(value, opt_comp) {
   };
 
   return bsearch.call(this, value, 0, this.length-1);
-}
-
-/**
- * Compare x & y using default operators, returning {-1,0,1} for x {<,===,>} y.
- */
-function default_comparator(x,y) { 
-  if (x < y)   { return -1; }
-  if (x > y)   { return 1; }
-  if (x === y) { return 0; }
-  // x & y be of different types, or operators do not provide a strict ordering
-  return -1;
 }

@@ -1,5 +1,3 @@
-Array.prototype.tap = function(f) { this.forEach(f); return this; }
-
 var sp = getSpotifyApi(1);
 var models = sp.require('sp://import/scripts/api/models');
 var views = sp.require('sp://import/scripts/api/views');
@@ -64,4 +62,61 @@ function trackFields(track) {
              | views.Track.FIELD.DURATION | views.Track.FIELD.ALBUM
              | views.Track.FIELD.POPULARITY;
   return new views.Track(track, fields);
-};
+}
+
+/**
+ * Equivalent to Array.forEach, but also returns the array for chaining.
+ */
+Array.prototype.tap = function(f) { this.forEach(f); return this; }
+
+/**
+ * Binary search a sorted array, returning the index of an element equal to or
+ * closest to the specified value, choosing the smaller index if between two
+ * elements.
+ *
+ * @param {*} value Value to search for.
+ * @param {Function=} opt_comp Optional comparison function.
+ */
+Array.prototype.bsearch = function(value, opt_comp) {
+
+  opt_comp = opt_comp || default_comparator;
+
+  var bsearch = function(value, low, high) {
+    // Simple (low+high)/2 version will work for all arrays with less than 2^53
+    // elements (numbers greater than 2^53 are represented as floating points),
+    // but no harm in being safe.
+    // Also dont access array outside bounds (ie, when value < all elements).
+    var mid = Math.max(0, low + Math.floor((high - low)/2));
+
+    // Return index if we've found value
+    if (opt_comp(this[mid],value) == 0) {
+      return mid;
+    }
+    // Return index of greatest element still less than low, or zero if value
+    // is smaller than all elements
+    if (low >= high) {
+      return Math.max(0, (opt_comp(value,this[low]) > 0) ? low : low-1);
+    }
+    
+    // Recurse on new search area
+    if (opt_comp(value, this[mid]) < 0) {
+      return bsearch.call(this, value, low, mid-1);
+    }
+    else {
+      return bsearch.call(this, value, mid+1, high);
+    }
+  };
+
+  return bsearch.call(this, value, 0, this.length-1);
+}
+
+/**
+ * Compare x & y using default operators, returning {-1,0,1} for x {<,===,>} y.
+ */
+function default_comparator(x,y) { 
+  if (x < y)   { return -1; }
+  if (x > y)   { return 1; }
+  if (x === y) { return 0; }
+  // x & y be of different types, or operators do not provide a strict ordering
+  return -1;
+}

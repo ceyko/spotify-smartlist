@@ -45,14 +45,17 @@ window.onload = function() {
   }, false);
 };
 
+/**
+ * Return a new playlist shuffling tracks in order of a random variable chosen
+ * proportionally to popularity.
+ */
 function shuffle(playlist) {
   var shuffled = new models.Playlist;
-  playlist.tracks
-    .map(function(x){ return [x,Math.pow(x.popularity,2)*Math.random()]; })
-    .sort(function(x,y){ return y[1]-x[1]; })
-    .tap(function(x){ console.log(x[0].popularity + " " + x[1] + " " + x[0].name); })
-    .map(function(x){ return x[0]; })
-    .forEach(function(x){ shuffled.add(x); });
+  shuffled.add(playlist.tracks
+    .map(function(x){ return {track:x, weight:Math.pow(x.popularity,2)*Math.random()}; })
+    .sort(function(x,y){ return compare(x.weight,y.weight); })
+    //.tap(function(x){ console.log(x.track.popularity + " " + x.weight + " " + x.track.name); })
+    .map(function(x){ return x.track; }));
   return shuffled;
 }
 

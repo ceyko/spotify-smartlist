@@ -28,7 +28,7 @@ window.onload = function() {
     var drop = models.Playlist.fromURI(e.dataTransfer.getData('text'),
       function(playlist) {
         // create shuffled playlist
-        var shuffled = shuffle(playlist);
+        var shuffled = random(playlist);
         // add player view
         var player = new views.Player();
         player.track = null;
@@ -53,6 +53,27 @@ function shuffle(playlist) {
     .tap(function(x){ console.log(x[0].popularity + " " + x[1] + " " + x[0].name); })
     .map(function(x){ return x[0]; })
     .forEach(function(x){ shuffled.add(x); });
+  return shuffled;
+}
+
+/**
+ * Return a new playlist choosing (with replacement) tracks from playlist with
+ * probability proportional to their popularity.
+ */
+function random(playlist) {
+  var total_pop = playlist.tracks.reduce(function(sum,x){ return sum+x.popularity; }, 0);
+  var total_weight = 0;
+  var weighted = playlist.tracks
+    .map(function(x){ return {track:x, weight:x.popularity/total_pop}; })
+    .tap(function(x){ x.weight = (total_weight += x.weight); });
+  // Pick elements for the new playlist
+  var shuffled = new models.Playlist;
+  for (var i=0; i<weighted.length; i++) {
+    var index = weighted.bsearch(
+        {weight:Math.random()},
+        function(x,y){ return compare(x.weight,y.weight); });
+    shuffled.add(weighted[index].track);
+  }
   return shuffled;
 }
 

@@ -14,19 +14,19 @@ window.onload = function() {
   }, false);
 
   drop_box.addEventListener('dragenter', function(e){
-    if (e.preventDefault) e.preventDefault();
+    if (e.preventDefault) { e.preventDefault(); }
     e.dataTransfer.dropEffect = 'copy';
     this.classList.add('over');
   }, false);
 
   drop_box.addEventListener('dragover', function(e){
-    if (e.preventDefault) e.preventDefault();
+    if (e.preventDefault) { e.preventDefault(); }
     e.dataTransfer.dropEffect = 'copy';
     return false;
   }, false);
 
   drop_box.addEventListener('drop', function(e){
-    if (e.preventDefault) e.preventDefault();
+    if (e.preventDefault) { e.preventDefault(); }
     var drop = models.Playlist.fromURI(e.dataTransfer.getData('text'),
       function(playlist) {
         // create shuffled playlist
@@ -52,7 +52,7 @@ window.onload = function() {
  * proportionally to popularity.
  */
 function shuffle(playlist) {
-  var shuffled = new models.Playlist;
+  var shuffled = new models.Playlist();
   shuffled.add(playlist.tracks
     .map(function(x){ return {track:x, weight:Math.pow(x.popularity,2)*Math.random()}; })
     .sort(function(x,y){ return compare(x.weight,y.weight); })
@@ -72,11 +72,12 @@ function random(playlist) {
     .map(function(x){ return {track:x, weight:x.popularity/total_pop}; })
     .tap(function(x){ x.weight = (total_weight += x.weight); });
   // Pick elements for the new playlist
-  var shuffled = new models.Playlist;
+  var shuffled = new models.Playlist();
+  var comp_weights = function(x,y){ return compare(x.weight,y.weight); };
   for (var i=0; i<weighted.length; i++) {
     var index = weighted.bsearch(
         {weight:Math.random()},
-        function(x,y){ return compare(x.weight,y.weight); });
+        comp_weights);
     shuffled.add(weighted[index].track);
   }
   return shuffled;
@@ -96,12 +97,14 @@ function random_no_replacement(playlist) {
   var tracks = weighted(playlist.tracks.map(function(x){ return {track:x};}));
 
   // pick elements until we've chosen all tracks
-  var shuffled = new models.Playlist;
+  var shuffled = new models.Playlist();
+  var comp_ranges = function(x,y){ return compare(x.range,y.range); };
+  var unselected = function(x){ return !x.selected; };
   while (shuffled.length < playlist.length) {
     // pick a random track
     var index = tracks.bsearch(
         {range:Math.random()},
-        function(x,y){ return compare(x.range,y.range); });
+        comp_ranges);
     // add track if not previously added
     if (!tracks[index].selected) {
       tracks[index].selected = true;
@@ -110,7 +113,7 @@ function random_no_replacement(playlist) {
     // remove all selected tracks and re-weight if we've failed enough times
     else if (++num_fails >= max_fails) {
       num_fails = 0;
-      tracks = weighted(tracks.filter(function(x){ return !x.selected; }));
+      tracks = weighted(tracks.filter(unselected));
     }
   }
 
@@ -158,9 +161,16 @@ function trackFields(track) {
 }
 
 /**
+ * Compare two values, returning 0 if equal, -1 if x<y, and 1 otherwise.
+ */
+function compare(x, y) {
+	return x === y ? 0 : x <= y ? -1 : 1;
+}
+
+/**
  * Equivalent to Array.forEach, but also returns the array for chaining.
  */
-Array.prototype.tap = function(f) { this.forEach(f); return this; }
+Array.prototype.tap = function(f) { this.forEach(f); return this; };
 
 /**
  * Binary search a sorted array, returning the index of an element equal to or
@@ -183,7 +193,7 @@ Array.prototype.bsearch = function(value, opt_comp) {
     var mid = Math.max(0, low + Math.floor((high - low)/2));
 
     // Return index if we've found value
-    if (opt_comp(this[mid],value) == 0) {
+    if (opt_comp(this[mid],value) === 0) {
       return mid;
     }
     // Return index of greatest element still less than low, or zero if value
@@ -202,4 +212,4 @@ Array.prototype.bsearch = function(value, opt_comp) {
   };
 
   return bsearch.call(this, value, 0, this.length-1);
-}
+};

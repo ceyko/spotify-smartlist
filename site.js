@@ -28,7 +28,7 @@ window.onload = function() {
     var drop = models.Playlist.fromURI(e.dataTransfer.getData('text'),
       function(playlist) {
         // create shuffled playlist
-        var shuffled = random(playlist);
+        var shuffled = random_no_replacement(playlist);
         // add player view
         var player = new views.Player();
         player.track = null;
@@ -78,6 +78,73 @@ function random(playlist) {
     shuffled.add(weighted[index].track);
   }
   return shuffled;
+}
+
+/**
+ * Return a new playlist choosing (without replacement) tracks from playlist
+ * with probability proportional to their popularity.
+ */
+function random_no_replacement(playlist) {
+  // We can find the optimal value for the max number of fails before
+  // re-weighing by plotting max_fails vs time_elapsed vs playlist_length, but
+  // unless we have playlists a few orders of magnitude larger than 1000 it
+  // doesn't really matter. Choosing 2 seemed like a good tradeoff.
+  var max_fails = 2;
+  var num_fails = 0;
+  var tracks = weighted(playlist.tracks.map(function(x){ return {track:x};}));
+
+  // pick elements until we've chosen all tracks
+  var shuffled = new models.Playlist;
+  while (shuffled.length < playlist.length) {
+    // pick a random track
+    var index = tracks.bsearch(
+        {range:Math.random()},
+        function(x,y){ return compare(x.range,y.range); });
+    // add track if not previously added
+    if (!tracks[index].selected) {
+      tracks[index].selected = true;
+      shuffled.add(tracks[index].track);
+    }
+    // remove all selected tracks and re-weight if we've failed enough times
+    else if (++num_fails >= max_fails) {
+      num_fails = 0;
+      tracks = weighted(tracks.filter(function(x){ return !x.selected; }));
+    }
+  }
+
+  return shuffled;
+}
+
+/**
+ * Returns a value in [0,1] for the value of the track.
+ */
+function default_value(track) {
+  int exp = 3;
+  return Math.pow(track.popularity,exp)/Math.pow(100,exp); 
+}
+
+/**
+ * Returns a list of tracks and their weights.
+ * 
+ * @param {Array} tracks Array of objects of the form {track:models.Track}
+ * @param {Function=} value Optional valuation function: models.Track -> Number
+ * @return {Array} Array of objects {track, weight, range}, sorted by range,
+ *    where the difference between an element's range and the next element's
+ *    range is equal to its weight.
+ */
+function weighted(tracks, value) {
+  value = value || default_value;
+
+  // get the weight of each track
+  var total_value = tracks.reduce(function(sum,x){ return sum+value(x.track); }, 0);
+  tracks.forEach(function(x){ x.weight = value(x.track)/total_value; });
+
+  // get the range of weights that represent each track
+  // subtrack current weight from range so first is 0
+  var total_weight = 0;
+  tracks.forEach(function(x){ x.range = (total_weight += x.weight) - x.weight; });
+
+  return tracks;
 }
 
 function trackFields(track) {

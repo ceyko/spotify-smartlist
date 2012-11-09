@@ -119,7 +119,7 @@ function random_no_replacement(playlist) {
  * Returns a value in [0,1] for the value of the track.
  */
 function default_value(track) {
-  int exp = 3;
+  var exp = 3;
   return Math.pow(track.popularity,exp)/Math.pow(100,exp); 
 }
 

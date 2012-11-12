@@ -115,11 +115,18 @@ function random_no_replacement(playlist) {
 }
 
 /**
- * Returns a value in [0,1] for the value of the track.
+ * Returns a number in (0,1] for the value of the track.
  */
 function default_value(track) {
+  // min and max for base value
+  var min = 1;
+  var max = 100;
+  // increase distance between tracks of similar value
   var exp = 3;
-  return Math.pow(track.popularity,exp)/Math.pow(100,exp); 
+  
+  // scale value to (0,1]
+  var value = Math.max(min, track.popularity);
+  return Math.pow(value,exp) / Math.pow(max,exp); 
 }
 
 /**

@@ -53,10 +53,8 @@ window.onload = function() {
  */
 function shuffle(playlist) {
   var shuffled = new models.Playlist();
-  shuffled.add(playlist.tracks
-    .map(function(x){ return {track:x, weight:Math.pow(x.popularity,2)*Math.random()}; })
-    .sort(function(x,y){ return compare(x.weight,y.weight); })
-    //.tap(function(x){ console.log(x.track.popularity + " " + x.weight + " " + x.track.name); })
+  shuffled.add(weighted(playlist.tracks.map(function(x){ return new Track(x); }))
+    .sort(function(x,y){ return compare(y.weight,x.weight); }) // reverse order
     .map(function(x){ return x.track; }));
   return shuffled;
 }
@@ -66,19 +64,15 @@ function shuffle(playlist) {
  * probability proportional to their popularity.
  */
 function random(playlist) {
-  var total_pop = playlist.tracks.reduce(function(sum,x){ return sum+x.popularity; }, 0);
-  var total_weight = 0;
-  var weighted = playlist.tracks
-    .map(function(x){ return {track:x, weight:x.popularity/total_pop}; })
-    .tap(function(x){ x.weight = (total_weight += x.weight); });
+  var tracks = weighted(playlist.tracks.map(function(x){ return new Track(x); }));
   // Pick elements for the new playlist
   var shuffled = new models.Playlist();
-  var comp_weights = function(x,y){ return compare(x.weight,y.weight); };
-  for (var i=0; i<weighted.length; i++) {
-    var index = weighted.bsearch(
-        {weight:Math.random()},
-        comp_weights);
-    shuffled.add(weighted[index].track);
+  var comp_ranges = function(x,y){ return compare(x.range,y.range); };
+  for (var i=0; i<tracks.length; i++) {
+    var index = tracks.bsearch(
+        {range:Math.random()},
+        comp_ranges);
+    shuffled.add(tracks[index].track);
   }
   return shuffled;
 }
@@ -94,7 +88,7 @@ function random_no_replacement(playlist) {
   // doesn't really matter. Choosing 2 seemed like a good tradeoff.
   var max_fails = 2;
   var num_fails = 0;
-  var tracks = weighted(playlist.tracks.map(function(x){ return {track:x};}));
+  var tracks = weighted(playlist.tracks.map(function(x){ return new Track(x); }));
 
   // pick elements until we've chosen all tracks
   var shuffled = new models.Playlist();
@@ -129,13 +123,14 @@ function default_value(track) {
 }
 
 /**
- * Returns a list of tracks and their weights.
+ * Assigns the weight and range to tracks, using the function, value.
  * 
- * @param {Array} tracks Array of objects of the form {track:models.Track}
- * @param {Function=} value Optional valuation function: models.Track -> Number
- * @return {Array} Array of objects {track, weight, range}, sorted by range,
- *    where the difference between an element's range and the next element's
- *    range is equal to its weight.
+ * @param {Track[]} tracks Array of track objects
+ * @param {optional Function} value Optional valuation function: 
+ *    models.Track -> Number
+ * @return {Track[]} Array of track objects, sorted by range, where the
+ *    difference between an element's range and the next element's range is
+ *    equal to its weight.
  */
 function weighted(tracks, value) {
   value = value || default_value;
@@ -158,6 +153,21 @@ function trackFields(track) {
              | views.Track.FIELD.DURATION | views.Track.FIELD.ALBUM
              | views.Track.FIELD.POPULARITY;
   return new views.Track(track, fields);
+}
+
+/**
+ * @constructor Track
+ * @param {models.Track} track A spotify track
+ * @param {optional Number} weight The value of the track, in range [0,1]
+ * @param {optional Number} range The lower bound of the range in [0,1] that
+ *    represents this track. The upper bound is the range+weight. Used so a
+ *    random number in [0,1] chooses a track with probability proportional to
+ *    its weight of the track, in range [0,1].
+ */
+function Track(track, weight, range) {
+  this.track  = track;
+  this.weight = weight || 0;
+  this.range  = range  || 1;
 }
 
 /**

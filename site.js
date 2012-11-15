@@ -10,7 +10,7 @@ $(document).ready(function() {
   /** 
    * Setup #drop_box's handlers: highlight on drag, create playlist on drop.
    */
-  $('#drop_box')
+  $('#dropbox')
     .on('dragenter dragover', function(e) {
       e.originalEvent.dataTransfer.dropEffect = 'copy'; // allow drop
       $(this).addClass('over');
@@ -39,10 +39,10 @@ function create_smartlist(playlist) {
   var player = new views.Player();
   player.track = null;
   player.context = shuffled;
-  $("#player_html").empty().append(player.node);
+  $("#smart-player").empty().append(player.node);
   // add playlist view
   var list = new views.List(shuffled, trackFields);
-  $("#playlist_html").empty().append(list.node);
+  $("#smart-playlist").empty().append(list.node);
 }
 
 /**

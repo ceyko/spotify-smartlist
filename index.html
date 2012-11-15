@@ -23,16 +23,24 @@
       <div id="index" class="section">
 
         <style>
-          #drop_box {border:4px dashed #333;width:100%;height:200px;padding:10px;}
-          #drop_box.over {opacity:0.8;border-color:#74c043;}
-          #player_html {text-align:center; padding:10px;}
-          #playlist_html {padding:10px;}
+          #top-menu {height:150px;}
+          #dropbox-container {float:left; width:50%}
+          #dropbox {border:4px dashed #333; width:100px; height:100px; text-align:center; margin:auto; padding:10px;}
+          #dropbox.over {opacity:0.8;border-color:#74c043;}
+          #smart-player {text-align:center; width:50%; float:right;}
+          #smart-playlist { }
           .sp-track-field-popularity {width:60px;}
         </style>
 
-        <div id="drop_box"></div>
-        <div id="player_html"></div>
-        <div id="playlist_html"></div>
+        <div id="top-menu">
+          <div id="dropbox-container">
+            <div id="dropbox">
+              <span id="dropbox-text">Drop Playlist Here</span>
+            </div>
+          </div>
+          <div id="smart-player"></div>
+        </div>
+        <div id="smart-playlist"></div>
 
       </div><!-- /.section #index -->
 

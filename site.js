@@ -5,47 +5,45 @@ var models = sp.require('sp://import/scripts/api/models');
 var views = sp.require('sp://import/scripts/api/views');
 var player = models.player;
 
-window.onload = function() {
-  var drop_box = document.querySelector('#drop_box');
 
-  drop_box.addEventListener('dragstart', function(e){
-    e.dataTransfer.setData('text/html', this.innerHTML);
-    e.dataTransfer.effectAllowed = 'copy';
-  }, false);
+$(document).ready(function() {
+  /** 
+   * Setup #drop_box's handlers: highlight on drag, create playlist on drop.
+   */
+  $('#drop_box')
+    .on('dragenter dragover', function(e) {
+      e.originalEvent.dataTransfer.dropEffect = 'copy'; // allow drop
+      $(this).addClass('over');
+      return false;
+    })
+    .on('dragleave drop', function(e) {
+      $(this).removeClass('over');
+      return false;
+    })
+    .on('drop', function(e) {
+      var uri = e.originalEvent.dataTransfer.getData('text');
+      var playlist = models.Playlist.fromURI(uri);
+      create_smartlist(playlist);
+      return false;
+    });
+});
 
-  drop_box.addEventListener('dragenter', function(e){
-    if (e.preventDefault) { e.preventDefault(); }
-    e.dataTransfer.dropEffect = 'copy';
-    this.classList.add('over');
-  }, false);
 
-  drop_box.addEventListener('dragover', function(e){
-    if (e.preventDefault) { e.preventDefault(); }
-    e.dataTransfer.dropEffect = 'copy';
-    return false;
-  }, false);
-
-  drop_box.addEventListener('drop', function(e){
-    if (e.preventDefault) { e.preventDefault(); }
-    var drop = models.Playlist.fromURI(e.dataTransfer.getData('text'),
-      function(playlist) {
-        // create shuffled playlist
-        var shuffled = random_no_replacement(playlist);
-        // add player view
-        var player = new views.Player();
-        player.track = null;
-        player.context = shuffled;
-        document.querySelector("#player_html").appendChild(player.node);
-        // add playlist view
-        var list = new views.List(shuffled, trackFields);
-        document.querySelector("#playlist_html").appendChild(list.node);
-      });
-    this.classList.remove('over');
-    var success_message = document.createElement('p');
-    success_message.innerHTML = 'Playlist successfully dropped: ' + drop.uri;
-    this.appendChild(success_message);
-  }, false);
-};
+/**
+ * Create a randomized playlist and add it to the DOM.
+ */
+function create_smartlist(playlist) {
+  // create shuffled playlist
+  var shuffled = random_no_replacement(playlist);
+  // add player view
+  var player = new views.Player();
+  player.track = null;
+  player.context = shuffled;
+  $("#player_html").empty().append(player.node);
+  // add playlist view
+  var list = new views.List(shuffled, trackFields);
+  $("#playlist_html").empty().append(list.node);
+}
 
 /**
  * Return a new playlist shuffling tracks in order of a random variable chosen
@@ -122,7 +120,7 @@ function default_value(track) {
   var min = 1;
   var max = 100;
   // increase distance between tracks of similar value
-  var exp = 3;
+  var exp = 5;
   
   // scale value to (0,1]
   var value = Math.max(min, track.popularity);

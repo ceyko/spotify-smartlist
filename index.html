@@ -10,11 +10,13 @@
     <link rel="stylesheet" type="text/css" charset="utf-8" href="sp://resources/css/list.css">
     <style>
       @import url('sp://smartlist/css/main.css');
+      @import url('sp://smartlist/css/jquery-ui.css');
       h1, ul {margin:0 0 30px;}
       a:hover {color:#83be20;}
     </style>
     <script src="sp://smartlist/js/rainbow-custom.min.js"></script>
     <script src="sp://smartlist/js/jquery.min.js"></script>
+    <script src="sp://smartlist/js/jquery-ui.js"></script>
     <script src="sp://smartlist/site.js"></script>
   </head>
   <body>
@@ -25,9 +27,15 @@
         <style>
           #top-menu {height:150px;}
           #dropbox-container {float:left; width:50%}
-          #dropbox {border:4px dashed #333; width:100px; height:100px; text-align:center; margin:auto; padding:10px;}
-          #dropbox.over {opacity:0.8;border-color:#74c043;}
-          #smart-player {text-align:center; width:50%; float:right;}
+          #dropbox {border:3px dashed #666; width:100px; height:100px; text-align:center; margin:auto; padding:10px;}
+          #dropbox.over {opacity:0.8; border-color:#0078a3;}
+          #smart-player {float:right; width:50%; text-align:center;}
+
+          #smart-slider-container {display:none;}
+          #smart-slider-widget {display:table; width:60%; margin:auto; background-color:#f9f9f9; border:1px solid #ddd; padding:10px;}
+          #smart-slider-left {display:table-cell; width:100px; text-align:left;}
+          #smart-slider-right {display:table-cell; width:100px; text-align:right;}
+
           #smart-playlist { }
           .sp-track-field-popularity {width:60px;}
         </style>
@@ -40,6 +48,17 @@
           </div>
           <div id="smart-player"></div>
         </div>
+
+        <div id="smart-slider-container">
+          <div id="smart-slider-widget" class="ui-widget ui-corner-all">
+            <span id="smart-slider-left">Less shuffled</span>
+            <div id="smart-slider"></div>
+            <span id="smart-slider-right">More shuffled</span>
+          </div>
+        </div>
+
+        <div class="spacer" style="height:15px;"></div>
+
         <div id="smart-playlist"></div>
 
       </div><!-- /.section #index -->

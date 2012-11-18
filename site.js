@@ -23,7 +23,23 @@ $(document).ready(function() {
     .on('drop', function(e) {
       var uri = e.originalEvent.dataTransfer.getData('text');
       var playlist = models.Playlist.fromURI(uri);
+
+      // create and show slider
+      $('#smart-slider-container').css('display','block');
+      $('#smart-slider').slider({
+        min: 0,
+        max: 4,
+        value: 2,
+        // large enough step to easily click on min or max
+        step: 0.25,
+        // re-shuffle the playlist whenever slider moves
+        change: function(e,ui) { create_smartlist(playlist); },
+        animate: 'fast'
+      });
+
+      // wait until slider is created as we use its current value
       create_smartlist(playlist);
+
       return false;
     });
 });
@@ -119,8 +135,15 @@ function default_value(track) {
   // min and max for base value
   var min = 1;
   var max = 100;
-  // increase distance between tracks of similar value
-  var exp = 5;
+
+  // amount to increase distance between tracks of similar value
+  // Sliders must have smaller numbers on the left, but less randomness is
+  // given by a larger number, so we invert the value.
+  var exp = $('#smart-slider').slider('option','max') - $('#smart-slider').slider('value');
+  // There's many more values that will give less shuffled arrangements, so we
+  // increase the value to make up for that, so the middle of the slider will
+  // actually represent a medium amount of randomness.
+  exp = Math.pow(exp,3);
   
   // scale value to (0,1]
   var value = Math.max(min, track.popularity);

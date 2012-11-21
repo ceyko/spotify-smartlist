@@ -1,3 +1,16 @@
 # Smartlist
 
-This is a Spotify App that plays songs from a playlist in order proportional to their popularity.
+This is a Spotify App that plays songs from a playlist in order proportional to
+their popularity.
+
+# Install
+
+Place files into `~/spotify/smartlist`, and then search for
+`spotify:app:smartlist` in Spotify.
+
+# Notes
+
+Note that this is an unofficial Spotify app and not available in their app
+store. When adding to favorites, it will only remain for the current session of
+the Spotify application, and must be re-added via `spotify:app:smartlist` upon
+restart. This and the directory limitation are imposed on all unofficial apps.

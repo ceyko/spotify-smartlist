@@ -27,9 +27,10 @@
         <style>
           #top-menu {height:150px;}
           #dropbox-container {float:left; width:50%}
-          #dropbox {border:3px dashed #666; width:100px; height:100px; text-align:center; margin:auto; padding:10px;}
+          #dropbox {display:table; border:3px dashed #666; text-align:center; margin:auto;}
           #dropbox.over {opacity:0.8; border-color:#0078a3;}
-          #smart-player {float:right; width:50%; text-align:center;}
+          #dropbox-text {width:88px; height:88px; text-align:center; padding:20px;}
+          #smart-player {display:none; margin:1px; margin-bottom:-3px}
 
           #smart-slider-container {display:none;}
           #smart-slider-widget {display:table; width:60%; margin:auto; background-color:#f9f9f9; border:1px solid #ddd; padding:10px;}
@@ -40,14 +41,12 @@
           .sp-track-field-popularity {width:60px;}
         </style>
 
-        <div id="top-menu">
-          <div id="dropbox-container">
-            <div id="dropbox">
-              <span id="dropbox-text">Drop Playlist Here</span>
-            </div>
-          </div>
+        <div id="dropbox">
+          <div id="dropbox-text">Drop Playlist Here</div>
           <div id="smart-player"></div>
         </div>
+
+        <div class="spacer" style="height:15px;"></div>
 
         <div id="smart-slider-container">
           <div id="smart-slider-widget" class="ui-widget ui-corner-all">

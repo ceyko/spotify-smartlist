@@ -24,8 +24,7 @@ $(document).ready(function() {
       var uri = e.originalEvent.dataTransfer.getData('text');
       var playlist = models.Playlist.fromURI(uri);
 
-      // create and show slider
-      $('#smart-slider-container').css('display','block');
+      // create slider
       $('#smart-slider').slider({
         min: 0,
         max: 4,
@@ -39,6 +38,11 @@ $(document).ready(function() {
 
       // wait until slider is created as we use its current value
       create_smartlist(playlist);
+
+      // show slider and player and hide text
+      $('#dropbox-text').css('display','none');
+      $('#smart-player').css('display','block');
+      $('#smart-slider-container').css('display','block');
 
       return false;
     });
